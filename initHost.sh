@@ -135,8 +135,26 @@ echo
 # SSHD set up is mandatory.
 sshd_config_file=/etc/ssh/sshd_config
 
-sed -i.bak -e "s/^PermitRootLogin without-password/PermitRootLogin no/g" \
-              $sshd_config_file
+# attempt to modify in situ first.
+sed -i.bak -r -e "s/^\s*#*\s*PermitRootLogin [a-z\-]*/PermitRootLogin no/" \
+              -e "0,/PermitRootLogin no/! s/PermitRootLogin no/#deleted/" \
+              -e "s/^\s*#*\s*PasswordAuthentication [a-z\-]*/PasswordAuthentication no/" \
+              -e "0,/PasswordAuthentication no/! s/PasswordAuthentication no/#deleted/" \
+              -e "/^#deleted/ D" $sshd_config_file
+
+# reject root login if not set
+if ! grep -xq '^PermitRootLogin no' $sshd_config_file; then
+  echo >> $sshd_config_file
+  echo "# Reject root login" >> $sshd_config_file
+  echo "PermitRootLogin no" >> $sshd_config_file
+fi
+
+# reject password authentication if not set
+if ! grep -xq '^PasswordAuthentication no' $sshd_config_file; then
+  echo >> $sshd_config_file
+  echo "# Reject password authentication" >> $sshd_config_file
+  echo "PasswordAuthentication no" >> $sshd_config_file
+fi
 
 echo "Successfully revised SSHD permissions..."
 echo
