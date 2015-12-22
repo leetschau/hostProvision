@@ -158,3 +158,5 @@ fi
 
 echo "Successfully revised SSHD permissions..."
 echo
+service ssh restart
+
