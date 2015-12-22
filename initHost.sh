@@ -45,6 +45,9 @@ convert_case()
 # STEP 1:
 # IP Configuration (Qing Cloud)
 
+# Set Environment
+echo 'export LC_ALL="en_US.UTF-8"' > /etc/profile.d/setting-env.sh
+
 # ---------------------------------------------------------
 # STEP 2:
 # DNS Server
@@ -112,7 +115,7 @@ echo
 # Ansible User
 
 # add ansible user
-useradd ansible
+useradd -m -s /bin/bash ansible
 
 # ad ssh key
 mkdir -p /home/ansible/.ssh
